@@ -1,0 +1,55 @@
+- hosts: all
+  become: yes
+  tasks:
+
+    - name: Install zabbix-agent on Ubuntu
+      apt:
+         name=zabbix-agent
+         state=latest
+
+      when:
+         ansible_os_family == "Debian"
+
+
+    - name: Install zabbix release package
+      apt:
+        deb: https://repo.zabbix.com/zabbix/6.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_6.0-4+ubuntu22.04_all.deb
+
+      when:
+         ansible_os_family == "Debian"
+
+    - name: Change Server IP
+      lineinfile:
+        path: /etc/zabbix/zabbix_agentd.conf
+        regexp: 'Server=127.0.0.1'
+        line: "Server=127.0.0.1,51.250.80.248"
+
+    - name: Change Active Server IP
+      lineinfile:
+        path: /etc/zabbix/zabbix_agentd.conf
+        regexp: 'ServerActive=127.0.0.1'
+        line: "ServerActive=127.0.0.1,51.250.80.248"
+
+      notify:
+         zabbix-agent systemd
+
+    - name: Install Zabbix-release CentOS 7
+      yum:
+        name: https://repo.zabbix.com/zabbix/6.0/rhel/7/x86_64/zabbix-release-6.0-4.el7.noarch.rpm
+
+      when: ansible_os_family == "RedHat"
+
+    - name: install zabbix-agent
+      yum: name=zabbix-agent state=latest
+
+      when: ansible_os_family == "RedHat"
+
+      notify:
+         zabbix-agent systemd
+
+  handlers:
+    - name: zabbix-agent systemd
+      systemd:
+       name: zabbix-agent.service
+       enabled: yes
+       state: started

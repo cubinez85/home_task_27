@@ -1,0 +1,25 @@
+- hosts: all
+  become: yes
+  tasks:
+
+    - name: Install Nginx
+      apt: name=nginx state=latest
+
+      when:
+         ansible_os_family == "Debian"
+
+      notify:
+        - restart nginx
+
+    - name: Install Nginx
+      yum: name=nginx state=latest
+
+      when:
+         ansible_os_family == "RedHat"
+
+      notify:
+        - restart nginx
+
+  handlers:
+    - name: restart nginx
+      service: name=nginx state=reloaded
