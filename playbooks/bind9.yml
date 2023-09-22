@@ -1,0 +1,16 @@
+- hosts: server2
+  become: yes
+  tasks:
+
+    - name: update
+      apt: update_cache=yes   
+   
+    - name: Install Bind9
+      apt: name=bind9 state=latest
+
+      notify:
+        - restart bind9
+
+  handlers:
+    - name: restart bind9
+      service: name=bind9 state=reloaded

@@ -1,0 +1,19 @@
+- hosts: ubuntu
+  become: yes
+  tasks:
+
+    - name: update
+      apt: update_cache=yes   
+   
+    - name: Install Openvpn
+      apt: name=openvpn state=latest
+
+      notify:
+         openvpn systemd
+
+  handlers:
+    - name: openvpn systemd
+      systemd:
+       name: openvpn.service
+       enabled: yes
+       state: started
