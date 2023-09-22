@@ -1,0 +1,16 @@
+- hosts: server2
+  become: yes
+  tasks:
+
+    - name: update
+      apt: update_cache=yes   
+   
+    - name: Install Spamassassin
+      apt: name=spamassassin state=latest
+
+      notify:
+        - restart spamassassin
+
+  handlers:
+    - name: restart spamassassin
+      service: name=spamassassin state=reloaded
